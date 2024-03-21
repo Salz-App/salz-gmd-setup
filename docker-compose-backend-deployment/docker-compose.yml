@@ -64,3 +64,5 @@ services:
       - "80:80"
     networks:
       - "common-network"
+    links:
+      - api
