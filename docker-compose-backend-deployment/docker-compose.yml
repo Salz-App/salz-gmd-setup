@@ -24,11 +24,9 @@ services:
   api:
     hostname: api
     image: jlucasamorim/salz-gmd-setups-api:latest
-    command: uvicorn salz_expenditure_management.api:app --host 0.0.0.0 --reload
     stdin_open: true
     tty: true
     volumes:
-      - ".:/home/python/app"
       - "poetry_libs:/usr/local/lib"
     environment:
       PYTHONPATH: src
