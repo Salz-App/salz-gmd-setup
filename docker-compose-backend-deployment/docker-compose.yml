@@ -1,7 +1,6 @@
 version: "3.3"
 
 volumes:
-  poetry_libs:
   shared_contexts:
   postgresql-data:
     driver: local
@@ -25,6 +24,8 @@ services:
 
   api:
     image: jlucasamorim/salz-gmd-setups-api:latest
+    command: ["./app", "-prod"]
+    restart: always
     environment:
       - DB_USER=salz-gmd
       - DB_PASSWORD=salz-gmd
@@ -40,6 +41,8 @@ services:
 
   nextjs-app:
     image: jlucasamorim/salz-gmd-setups-client:latest
+    environment:
+      - NEXT_PUBLIC_API_URL=http://api:8080
     networks:
       - "common-network"
     depends_on:
