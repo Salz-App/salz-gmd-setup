@@ -11,9 +11,11 @@ networks:
 
 services:
   postgresql:
-    image: postgres:13-alpine
+    image: postgres
     environment:
-      POSTGRES_PASSWORD: "common136"
+      - POSTGRES_USER=salz-gmd
+      - POSTGRES_PASSWORD=salz-gmd
+      - POSTGRES_DB=salz-gmd
     ports:
       - "5432:5432"
     volumes:
@@ -22,45 +24,37 @@ services:
       - common-network
 
   api:
-    hostname: api
     image: jlucasamorim/salz-gmd-setups-api:latest
-    stdin_open: true
-    tty: true
-    volumes:
-      - "poetry_libs:/usr/local/lib"
     environment:
-      PYTHONPATH: src
-      CORS_ALLOW_CREDENTIALS: "true"
-      CORS_ALLOW_HEADERS: "[\"*\"]"
-      CORS_ALLOW_METHODS: "[\"*\"]"
-      CORS_ALLOW_ORIGINS: "[\"*\"]"
-      ENV: "dev"
-      LOG_LEVEL: "debug"
-      DATABASE_LOGGING_ECHO: "0"
-      WEB_APP_DEBUG: "true"
-      WEB_APP_DESCRIPTION: "Common Workspaces"
-      WEB_APP_TITLE: "Common Workspaces"
-      WEB_APP_VERSION: "0.1.0"
-      WEB_SERVER_HOST: "0.0.0.0"
-      WEB_SERVER_PORT: 8080
-      WEB_SERVER_RELOAD: "true"
-      ALGORITHM: "HS256"
-      ASYNC_SQLALCHEMY_URL: "postgresql+asyncpg://postgres:common136@postgresql/postgres"
-      ASYNC_SQLALCHEMY_LOGGING_ECHO: 1
-      ASYNC_SQLALCHEMY_POOL_SIZE: 5
-      ASYNC_SQLALCHEMY_MAX_POOL_SIZE: 50
+      - DB_USER=salz-gmd
+      - DB_PASSWORD=salz-gmd
+      - DB_NAME=salz-gmd
+      - DB_HOST=postgresql
+      - DB_PORT=5432
     networks:
       - "common-network"
-    links:
+    depends_on:
       - postgresql
     ports:
       - "8080:8080"
 
-  client:
+  nextjs-app:
     image: jlucasamorim/salz-gmd-setups-client:latest
-    ports: 
-      - "80:80"
     networks:
       - "common-network"
-    links:
+    depends_on:
       - api
+  nginx:
+    image: salz/nginx-app # Placeholder for pushing image to Dockerhub
+    build:
+      context: ./nginx-docker
+      dockerfile: Dockerfile
+    networks:
+      - "common-network"
+    depends_on:
+      - nextjs-app
+    ports:
+      - '80:80'
+    environment:
+      - NEXTJS_CONTAINER_IP=nextjs-app # supplying environment vars for convert-nginx.sh file.
+    command: ['sh', '/etc/nginx/convert-nginx.sh']
