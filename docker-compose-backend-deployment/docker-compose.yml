@@ -24,7 +24,7 @@ services:
 
   api:
     image: jlucasamorim/salz-gmd-setups-api:latest
-    command: ["./app", "-prod", "-seed"]
+    command: ["./app", "-prod"]
     restart: always
     environment:
       - DB_USER=salz-gmd
