@@ -32,6 +32,7 @@ services:
       - DB_NAME=salz-gmd
       - DB_HOST=postgresql
       - DB_PORT=5432
+      - JWT_SECRET=secret
     networks:
       - "common-network"
     depends_on:
